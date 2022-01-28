@@ -1,5 +1,4 @@
 import cv2 as cv
-import utils
 import arvore_de_decisao as ad
 import traffic_light as tl
 import time
