@@ -23,7 +23,7 @@ def check_result(result):
 _, _, clf = ad.train()
 
 # define a video capture object
-vid = cv.VideoCapture(0)
+vid = cv.VideoCapture(1)
 
 while(True):
     ret, frame = vid.read()
@@ -47,40 +47,3 @@ while(True):
 
 vid.release()
 cv.destroyAllWindows()
-
-
-# VERIFICANDO A QUANTIDADE DE FRAMES:
-
-# video = cv.VideoCapture(0);
-# 
-# # Number of frames to capture
-# num_frames = 120;
-# 
-# print("Capturing {0} frames".format(num_frames))
-# 
-# # Start time
-# start = time.time()
-# 
-# # Grab a few frames
-# for i in range(0, num_frames) :
-#     ret, frame = video.read()
-#     feature = ad.get_features(frame)
-#     ad.predict_frame(feature, clf)
-#     cv.imshow('frame', frame)
-# #     frame = cv.resize(frame, (266, 200))
-# #     frame = tl.find_traffic_light(frame)
-# 
-# # End time
-# end = time.time()
-# 
-# # Time elapsed
-# seconds = end - start
-# print ("Time taken : {0} seconds".format(seconds))
-# 
-# # Calculate frames per second
-# fps  = num_frames / seconds
-# print("Estimated frames per second : {0}".format(fps))
-# 
-# # Release video
-# video.release()
-# cv.destroyAllWindows()

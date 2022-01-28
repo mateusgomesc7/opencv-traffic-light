@@ -138,25 +138,13 @@ def predict(X_test, y_test, clf):
 
 def predict_frame(frame, clf):
     result = clf.predict(frame)
-#     print(resultado)
     return result
 
 
 if (__name__ == "__main__"):
     X_test, y_test, clf = train()
-#     predict(X_test, y_test, clf)
-#     predict_frame([X_test[1]], clf)
     
-    img = cv.imread('/home/pi/Desktop/Mateus Gomes/5_tensorflow_traffic_light_images/green/0e470b16-71f2-471c-8b31-a21f5ab4d814.jpg')
-#     img = cv.resize(img, (32, 32))
-#     img = img[10:100,10:30,:]
+    img = cv.imread('./5_tensorflow_traffic_light_images/green/0e470b16-71f2-471c-8b31-a21f5ab4d814.jpg')
 
     feature = get_features(img)
     predict_frame(feature, clf)
-#     
-#     cv.imshow('frame', img)
-#     cv.waitKey(0)
-#     cv.destroyAllWindows()
-
-#     yellow_lights = [img for img in glob.glob("./5_tensorflow_traffic_light_images/yellow/*.jpg")]
-#     features_yellow = get_features(yellow_lights[:1])
