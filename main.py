@@ -1,7 +1,7 @@
 import cv2 as cv
 import numpy as np
-import arvore_de_decisao as ad
-import traffic_light as tl
+import decision_tree as dt
+import template_match as tm
 
 
 def check_result(result):
@@ -19,7 +19,7 @@ def check_result(result):
     return text, color
 
 
-_, _, clf = ad.train()
+_, _, clf = dt.train()
 
 # define a video capture object
 vid = cv.VideoCapture(0)
@@ -28,9 +28,9 @@ while True:
     ret, frame = vid.read()
 
     frame = cv.resize(frame, (266, 200))
-    frame_crop, top_left, bottom_right = tl.find_traffic_light(frame)
-    feature = ad.get_features(frame_crop)
-    result = ad.predict_frame(feature, clf)
+    frame_crop, top_left, bottom_right = tm.find_traffic_light(frame)
+    feature = dt.get_features(frame_crop)
+    result = dt.predict_frame(feature, clf)
 
     # Escrever resultado na imagem
     text, color = check_result(result)
