@@ -28,7 +28,7 @@ while True:
     ret, frame = vid.read()
 
     frame = cv.resize(frame, (266, 200))
-    frame_crop, top_left, bottom_right = tm.find_traffic_light(frame)
+    frame_crop, top_left, bottom_right, _ = tm.find_traffic_light(frame)
 
     # Verifica se o semáforo foi identificado
     if type(frame_crop) is np.ndarray:

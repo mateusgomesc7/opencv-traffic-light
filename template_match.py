@@ -27,7 +27,6 @@ def find_traffic_light(image):
             min_val, max_val, min_loc, max_loc = cv.minMaxLoc(res)
             max_values.append([max_val, max_loc, scale])
 
-    print('Tamanho max_values: ', len(max_values), max_values)
     if len(max_values) > 0:
         max_val, max_loc, scale = max(max_values, key=lambda item: item[0])
         top_left = max_loc
