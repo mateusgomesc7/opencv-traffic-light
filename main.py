@@ -29,15 +29,18 @@ while True:
 
     frame = cv.resize(frame, (266, 200))
     frame_crop, top_left, bottom_right = tm.find_traffic_light(frame)
-    feature = dt.get_features(frame_crop)
-    result = dt.predict_frame(feature, clf)
 
-    # Escrever resultado na imagem
-    text, color = check_result(result)
-    font = cv.FONT_HERSHEY_SIMPLEX
-    cv.putText(frame, text, (5, 180), font, 1, color, 1, cv.LINE_AA)
+    # Verifica se o semáforo foi identificado
+    if type(frame_crop) is np.ndarray:
+        feature = dt.get_features(frame_crop)
+        result = dt.predict_frame(feature, clf)
 
-    cv.rectangle(frame, top_left, bottom_right, 255, 2)
+        # Escrever resultado na imagem
+        text, color = check_result(result)
+        font = cv.FONT_HERSHEY_SIMPLEX
+        cv.putText(frame, text, (5, 180), font, 1, color, 1, cv.LINE_AA)
+    
+        cv.rectangle(frame, top_left, bottom_right, 255, 2)
 
     cv.imshow('frame', frame)
 

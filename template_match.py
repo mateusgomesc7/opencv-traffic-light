@@ -1,5 +1,6 @@
 import time
 import cv2 as cv
+import numpy as np
 
 
 def find_traffic_light(image):
@@ -11,16 +12,27 @@ def find_traffic_light(image):
     w, h = template.shape[::-1]
 
     res = cv.matchTemplate(image, template, method)
-    min_val, max_val, min_loc, max_loc = cv.minMaxLoc(res)
+    
+    threshold = 0.75
+    loc = np.where(res >= threshold)
+    
+    # for pt in zip(*loc[::-1]):
+        # cv.rectangle(image, pt, (pt[0] + w, pt[1] + h), (255,0,0), 1)
+    
+    if len(loc[0]) > 0:
+        min_val, max_val, min_loc, max_loc = cv.minMaxLoc(res)
+        # print(max_val)
+    
+        top_left = max_loc
+        bottom_right = (top_left[0] + w, top_left[1] + h)
+    
+        image_crop = image_color[top_left[1]:top_left[1]+h, top_left[0]:top_left[0]+w]
+        # cv.rectangle(image, top_left, bottom_right, 255, 2)
+        
+        return image_crop, top_left, bottom_right
 
-    top_left = max_loc
-    bottom_right = (top_left[0] + w, top_left[1] + h)
-
-    image_crop = image_color[top_left[1]:top_left[1]+h, top_left[0]:top_left[0]+w]
-#     cv.rectangle(image, top_left, bottom_right, 255, 2)
-
-    return image_crop, top_left, bottom_right
-
+    return False, False, False
+    
 
 if __name__ == "__main__":
     image = cv.imread('./assets/template-matching/20211126_054358.jpg')
@@ -33,8 +45,8 @@ if __name__ == "__main__":
     final = time.time()
     print(f'Encontrar semáforo: {(final - inicio):.2f} segundos')
 
-    cv.imshow('image', image)
+    # cv.imshow('image', image)
     cv.imshow('image_crop', image_crop)
 
-    cv.waitKey(0)
+    cv.waitKey(10000)
     cv.destroyAllWindows()

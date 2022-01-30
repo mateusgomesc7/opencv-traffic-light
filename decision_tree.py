@@ -49,7 +49,7 @@ def get_features(images):
 
     for img in images:
         # Resize
-        if type(img) == np.ndarray:
+        if type(img) is np.ndarray:
             img = cv.resize(img, (32, 32))
         else:
             img = cv.resize(cv.imread(img), (32, 32))
