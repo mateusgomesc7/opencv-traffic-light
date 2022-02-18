@@ -8,7 +8,7 @@ def find_traffic_light(image):
     threshold = 0.75
     method = cv.TM_CCORR_NORMED
     image_color = image.copy()
-    image = cv.cvtColor(image, cv.COLOR_BGR2GRAY)
+    image_gray = cv.cvtColor(image, cv.COLOR_BGR2GRAY)
     template = cv.imread('./assets/template-matching/template/model.jpg', 0)
     template = cv.resize(template, (50, 81))
     w, h = template.shape[::-1]
@@ -17,8 +17,8 @@ def find_traffic_light(image):
     min_val, max_val, min_loc, max_loc = 0, 0, 0, 0
 
     for scale in np.linspace(0.5, 1.5, 20):
-        dim = (int(image.shape[1] * scale), int(image.shape[0] * scale))
-        resized = cv.resize(image, dim)
+        dim = (int(image_gray.shape[1] * scale), int(image_gray.shape[0] * scale))
+        resized = cv.resize(image_gray, dim)
 
         res = cv.matchTemplate(resized, template, method)
         loc = np.where(res >= threshold)
@@ -33,12 +33,14 @@ def find_traffic_light(image):
         bottom_right = (top_left[0] + w, top_left[1] + h)
 
         image_crop = image_color[top_left[1]:top_left[1]+h, top_left[0]:top_left[0]+w]
-        cv.rectangle(image, top_left, bottom_right, 255, 2)
+        if image_crop.shape[0] == 0:
+            return False, False, False, False
+        cv.rectangle(image_color, top_left, bottom_right, (255, 255, 255), 2)
 
         font = cv.FONT_HERSHEY_SIMPLEX
-        cv.putText(image, f'{scale}', (5, 180), font, 1, (255, 255, 255), 1, cv.LINE_AA)
+        cv.putText(image_color, f'Escala template: {(scale*100):.2f}%', (5, 30), font, 0.75, (255, 255, 255), 2, cv.LINE_AA)
 
-        return image_crop, top_left, bottom_right, image
+        return image_crop, top_left, bottom_right, image_color
 
     return False, False, False, False
 
@@ -59,12 +61,21 @@ if __name__ == "__main__":
 
     # cv.waitKey(10000)
     # cv.destroyAllWindows()
-    images = [img for img in glob.glob("./assets/template-matching/*.jpg")]
+
+    images_red = [img for img in glob.glob("./tests/red/*.jpg")]
+    images_yellow = [img for img in glob.glob("./tests/yellow/*.jpg")]
+    images_green = [img for img in glob.glob("./tests/green/*.jpg")]
+    images = []
+    images = images_red + images_yellow + images_green
+    count_match = 0
     for img in images:
         image = cv.imread(img)
         image = cv.resize(image, (400, 300))
-        image_crop, top_left, bottom_right, image = find_traffic_light(image)
-        cv.imshow(f'{img}', image)
+        image_crop, top_left, bottom_right, image_gray = find_traffic_light(image)
+        if image_crop is False:
+           count_match += 1
+        cv.imshow(f'{img}', image_gray)
 
+    print(f'Quantidade de semáforos encontrados: {len(images)-count_match}/{len(images)}')
     cv.waitKey(0)
     cv.destroyAllWindows()

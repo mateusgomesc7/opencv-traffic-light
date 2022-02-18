@@ -50,11 +50,15 @@ def get_features(images):
     for img in images:
         # Resize
         if type(img) is np.ndarray:
-            img = cv.resize(img, (32, 32), interpolation=cv.INTER_AREA)
+            try:
+                img = cv.resize(img, (32, 32), interpolation=cv.INTER_AREA)
+            except:
+                print('ERROR')
+                break
         else:
             img = cv.resize(cv.imread(img), (32, 32))
         # Cortando imagem
-        img = img[10:100, 10:30, :]
+        # img = img[10:100, 10:30, :]
         # Convertendo em RGB
         img_rgb = cv.cvtColor(img, cv.COLOR_BGR2RGB)
         # Convertendo em HSV
@@ -102,10 +106,17 @@ def get_labels(images, position_class):
 
 def train():
     inicio = time.time()
-    # Pegando as imagens
-    red_lights = [img for img in glob.glob("./assets/5_tensorflow_traffic_light_images/red/*.jpg")]
-    yellow_lights = [img for img in glob.glob("./assets/5_tensorflow_traffic_light_images/yellow/*.jpg")]
-    green_lights = [img for img in glob.glob("./assets/5_tensorflow_traffic_light_images/green/*.jpg")]
+    # Pegando as imagens 5_tensorflow_traffic_light_images
+    # red_lights = [img for img in glob.glob("./assets/5_tensorflow_traffic_light_images/red/*.jpg")] + \
+    # [img for img in glob.glob("./assets/add_decision_tree/red/*.jpg")]
+    # yellow_lights = [img for img in glob.glob("./assets/5_tensorflow_traffic_light_images/yellow/*.jpg")] + \
+    # [img for img in glob.glob("./assets/add_decision_tree/yellow/*.jpg")]
+    # green_lights = [img for img in glob.glob("./assets/5_tensorflow_traffic_light_images/green/*.jpg")] + \
+    # [img for img in glob.glob("./assets/add_decision_tree/green/*.jpg")]
+    
+    red_lights = [img for img in glob.glob("./assets/add_decision_tree/red/*.jpg")]
+    yellow_lights = [img for img in glob.glob("./assets/add_decision_tree/yellow/*.jpg")]
+    green_lights = [img for img in glob.glob("./assets/add_decision_tree/green/*.jpg")]
 
     features_red = get_features(red_lights)
     features_yellow = get_features(yellow_lights)
@@ -156,5 +167,5 @@ if __name__ == "__main__":
     # predict_frame(feature, clf)
     predict(X_test, y_test, clf)
 
-    # cv.waitKey(0)
-    # cv.destroyAllWindows()
+    cv.waitKey(0)
+    cv.destroyAllWindows()
