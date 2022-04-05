@@ -9,6 +9,7 @@ import time
 import BlynkLib
 import template_match as tm
 import decision_tree as dt
+import haarcascade as hc
 
 
 # ============GLOBALS=============
@@ -113,8 +114,9 @@ def moveCar(direction):
 
 
 def get_traffic_light(frame):
-    frame = cv.resize(frame, (266, 200))
-    frame_crop, top_left, bottom_right, _ = tm.find_traffic_light(frame)
+    frame_crop, top_left, bottom_right = hc.find_traffic_light(frame)
+    # frame_crop, top_left, bottom_right = tm.find_traffic_light(frame)
+    
     # Verifica se o semáforo foi identificado
     if type(frame_crop) is np.ndarray:
         feature = dt.get_features(frame_crop)
@@ -141,8 +143,8 @@ def show_traffic_light(frame, signal, color, top_left, bottom_right):
     # Verifica se algum semáforo foi encontrado
     if top_left:
         font = cv.FONT_HERSHEY_SIMPLEX
-        cv.putText(frame_traffic, signal, (5, 180), font, 1, color, 1, cv.LINE_AA)
-        cv.rectangle(frame_traffic, top_left, bottom_right, 255, 2)
+        cv.putText(frame_traffic, signal, (10, 10), font, 0.25, color, 1, cv.LINE_AA)
+        cv.rectangle(frame_traffic, top_left, bottom_right, (255,255,255),1)
     cv.imshow('Traffic Light', frame_traffic)
 
 
@@ -165,12 +167,12 @@ def get_road(frame):
 
 if __name__ == "__main__":
     stop()
-    
-    # Inicializa as telas para aplicação da estrada e do semáforo    
+    # Inicializa as telas para aplicação da estrada e do semáforo  
+    scale = 4 
     cv.namedWindow("Road", cv.WINDOW_NORMAL)
-    cv.resizeWindow("Road", 640, 480)
+    cv.resizeWindow("Road", largura_img*scale, altura_img*scale)
     cv.namedWindow("Traffic Light", cv.WINDOW_NORMAL)
-    cv.resizeWindow("Traffic Light", 640, 480)
+    cv.resizeWindow("Traffic Light", largura_img*scale, altura_img*scale)
     
     while True:
         blynk.run()
@@ -196,7 +198,6 @@ if __name__ == "__main__":
             show_traffic_light(frame, signal, color, top_left, bottom_right)
             
             # Aplicação da estrada
-            frame = cv.resize(frame, (largura_img, altura_img))
             cv.imshow('Road', frame)
             output = get_road(frame)
     
