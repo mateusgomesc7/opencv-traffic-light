@@ -37,26 +37,40 @@ def normalize_data(data):
     return (data - np.min(data)) / (np.max(data) - np.min(data))
 
 
-def get_features(images):
+def get_features(image):    
+    # Resize
+    img = cv.resize(image, (30, 40), interpolation=cv.INTER_AREA)
+    # Cortando imagem
+    # img = img[10:100, 10:30, :]
+    # Convertendo em RGB
+    img_rgb = cv.cvtColor(img, cv.COLOR_BGR2RGB)
+    # Convertendo em HSV
+    img_hsv = cv.cvtColor(img, cv.COLOR_BGR2HSV)
+    # Pegando imagem com máscara e posição mais brilhosa
+    img_rgb_mask, img_hsv_mask, pos = get_mask_and_pos(img_rgb, img_hsv)
+    # Média das cores RGB
+    colors_rgb = [np.sum(img_rgb_mask[:, :, 0] / 255.0),
+                  np.sum(img_rgb_mask[:, :, 1] / 255.0),
+                  np.sum(img_rgb_mask[:, :, 2] / 255.0)]
+    # Média das cores HSV
+    colors_hsv = [np.sum(img_hsv_mask[:, :, 0] / 255.0),
+                  np.sum(img_hsv_mask[:, :, 1] / 255.0),
+                  np.sum(img_hsv_mask[:, :, 2] / 255.0)]
+    
+    dataset = colors_rgb + colors_hsv
+    dataset.append(pos)
+    return [dataset]
+    
+
+def get_features_multiple_images(images):
     dataset_pos = []
     dataset_colors_rgb = []
     dataset_colors_hsv = []
     dataset = []
 
-    # Se for um frame, criar uma lista
-    if not type(images) is list:
-        images = [images]
-
     for img in images:
         # Resize
-        if type(img) is np.ndarray:
-            try:
-                img = cv.resize(img, (32, 32), interpolation=cv.INTER_AREA)
-            except:
-                print('ERROR')
-                break
-        else:
-            img = cv.resize(cv.imread(img), (32, 32))
+        img = cv.resize(cv.imread(img), (30, 40))
         # Cortando imagem
         # img = img[10:100, 10:30, :]
         # Convertendo em RGB
@@ -118,9 +132,9 @@ def train():
     yellow_lights = [img for img in glob.glob("./assets/add_decision_tree/yellow/*.jpg")]
     green_lights = [img for img in glob.glob("./assets/add_decision_tree/green/*.jpg")]
 
-    features_red = get_features(red_lights)
-    features_yellow = get_features(yellow_lights)
-    features_green = get_features(green_lights)
+    features_red = get_features_multiple_images(red_lights)
+    features_yellow = get_features_multiple_images(yellow_lights)
+    features_green = get_features_multiple_images(green_lights)
 
     labels_red = get_labels(red_lights, position_class=0)
     labels_yellow = get_labels(yellow_lights, position_class=1)
@@ -160,10 +174,9 @@ def predict_frame(frame, clf):
 if __name__ == "__main__":
     X_test, y_test, clf = train()
 
-    # img = cv.imread('./5_tensorflow_traffic_light_images/green/0e470b16-71f2-471c-8b31-a21f5ab4d814.jpg')
-
+    # img = cv.imread('./assets/5_tensorflow_traffic_light_images/green/0e470b16-71f2-471c-8b31-a21f5ab4d814.jpg')
     # red_lights = [img for img in glob.glob("./5_tensorflow_traffic_light_images/yellow/*.jpg")]
-    # feature = get_features(red_lights[:10])
+    # feature = get_features(img)
     # predict_frame(feature, clf)
     predict(X_test, y_test, clf)
 
