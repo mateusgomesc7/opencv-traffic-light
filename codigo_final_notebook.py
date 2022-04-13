@@ -95,14 +95,32 @@ def get_road(frame):
     print(labels[output.argmax()])
     return output
 
+def choose_movement(output):
+    if labels[output.argmax()] == labels[0]:
+        moveCar(min_left)
+        print("0")
+    elif labels[output.argmax()] == labels[1]:
+        moveCar(max_left)
+        print("1")
+    elif labels[output.argmax()] == labels[2]:
+        moveCar(frente)
+        print("2")
+    elif labels[output.argmax()] == labels[3]:
+        moveCar(min_right)
+        print("3")
+    elif labels[output.argmax()] == labels[4]:
+        moveCar(max_right)
+        print("4")
+    else:
+        print("...")
+    
+
 # ==================================
 
 
 if __name__ == "__main__":
     # Inicializa as telas para aplicação da estrada e do semáforo  
     scale = 4
-    cv.namedWindow("Road", cv.WINDOW_NORMAL)
-    cv.resizeWindow("Road", largura_img*scale, altura_img*scale)
     cv.namedWindow("Traffic Light", cv.WINDOW_NORMAL)
     cv.resizeWindow("Traffic Light", largura_img*scale, altura_img*scale)
     
@@ -114,36 +132,16 @@ if __name__ == "__main__":
             
             # Aplicação do semáforo
             signal, color, top_left, bottom_right = get_traffic_light(frame)
-            print('Signal ', signal)
+            print('Signal ', signal if signal else 'NÃO')
             show_traffic_light(frame, signal, color, top_left, bottom_right)
             
-            # Aplicação da estrada
-            cv.imshow('Road', frame)
-            output = get_road(frame)
-            
-            
-            if signal == 'red' or signal == 'yellow':
-                stop()
-                # time.sleep(1)
-            else:
-                if labels[output.argmax()] == labels[0]:
-                    moveCar(min_left)
-                    print("0")
-                elif labels[output.argmax()] == labels[1]:
-                    moveCar(max_left)
-                    print("1")
-                elif labels[output.argmax()] == labels[2]:
-                    moveCar(frente)
-                    print("2")
-                elif labels[output.argmax()] == labels[3]:
-                    moveCar(min_right)
-                    print("3")
-                elif labels[output.argmax()] == labels[4]:
-                    moveCar(max_right)
-                    print("4")
-                else:
-                    print("...")
-                # time.sleep(1)
+            # Ganha uma quantidade de movimento se não tiver sinal ou se for verde
+            if signal == 'green' or signal == '':
+                # Aplicação da estrada
+                for x in range(2):
+                    output = get_road(frame)
+                    choose_movement(output)
+                    time.sleep(1)
             
         key = cv.waitKey(1)
         if key == 27:
