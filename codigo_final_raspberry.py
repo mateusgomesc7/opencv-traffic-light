@@ -123,25 +123,28 @@ def get_traffic_light(frame):
         result = dt.predict_frame(feature, clf)
 
         text = ''
-        color = (0, 0, 0)
         if (result == np.array([[1., 0., 0.]])).all():
             text = 'red'
-            color = (0, 0, 255)
         elif (result == np.array([[0., 1., 0.]])).all():
             text = 'yellow'
-            color = (0, 255, 255)
         elif (result == np.array([[0., 0., 1.]])).all():
             text = 'green'
-            color = (0, 255, 0)
-        return text, color, top_left, bottom_right
+        return text, top_left, bottom_right
     else:
-        return '', '', '', ''
+        return '', '', ''
 
 
-def show_traffic_light(frame, signal, color, top_left, bottom_right):
+def show_traffic_light(frame, signal, top_left, bottom_right):
     frame_traffic = frame.copy()
     # Verifica se algum semáforo foi encontrado
     if top_left:
+        color = (0, 0, 0)
+        if signal == 'red':
+            color = (0, 0, 255)
+        elif signal == 'yellow':
+            color = (0, 255, 255)
+        elif signal == 'green':
+            color = (0, 255, 0)
         font = cv.FONT_HERSHEY_SIMPLEX
         cv.putText(frame_traffic, signal, (10, 10), font, 0.25, color, 1, cv.LINE_AA)
         cv.rectangle(frame_traffic, top_left, bottom_right, (255,255,255),1)
@@ -162,15 +165,32 @@ def get_road(frame):
     print(labels[output.argmax()])
     return output
 
+def choose_movement(output):
+    if labels[output.argmax()] == labels[0]:
+        moveCar(min_left)
+        print("0")
+    elif labels[output.argmax()] == labels[1]:
+        moveCar(max_left)
+        print("1")
+    elif labels[output.argmax()] == labels[2]:
+        moveCar(frente)
+        print("2")
+    elif labels[output.argmax()] == labels[3]:
+        moveCar(min_right)
+        print("3")
+    elif labels[output.argmax()] == labels[4]:
+        moveCar(max_right)
+        print("4")
+    else:
+        print("...")
+
 # ==================================
 
 
 if __name__ == "__main__":
     stop()
     # Inicializa as telas para aplicação da estrada e do semáforo  
-    scale = 4 
-    cv.namedWindow("Road", cv.WINDOW_NORMAL)
-    cv.resizeWindow("Road", largura_img*scale, altura_img*scale)
+    scale = 2
     cv.namedWindow("Traffic Light", cv.WINDOW_NORMAL)
     cv.resizeWindow("Traffic Light", largura_img*scale, altura_img*scale)
     
@@ -197,28 +217,13 @@ if __name__ == "__main__":
             print('Signal ', signal)
             show_traffic_light(frame, signal, color, top_left, bottom_right)
             
-            # Aplicação da estrada
-            cv.imshow('Road', frame)
-            output = get_road(frame)
-    
-            if labels[output.argmax()] == labels[0]:
-                moveCar(min_left)
-                print("0")
-            elif labels[output.argmax()] == labels[1]:
-                moveCar(max_left)
-                print("1")
-            elif labels[output.argmax()] == labels[2]:
-                moveCar(frente)
-                print("2")
-            elif labels[output.argmax()] == labels[3]:
-                moveCar(min_right)
-                print("3")
-            elif labels[output.argmax()] == labels[4]:
-                moveCar(max_right)
-                print("4")
-            else:
-                print("...")
-            time.sleep(1)
+            # Ganha uma quantidade de movimento se não tiver sinal ou se for verde
+            if signal == 'green' or signal == '':
+                # Aplicação da estrada
+                for x in range(2):
+                    output = get_road(frame)
+                    choose_movement(output)
+                    time.sleep(1)
     
         else:
             @blynk.VIRTUAL_WRITE(1)
