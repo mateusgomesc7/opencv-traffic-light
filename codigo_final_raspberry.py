@@ -213,9 +213,9 @@ if __name__ == "__main__":
             frame = cv.resize(frame, (largura_img, altura_img))
             
             # Aplicação do semáforo
-            signal, color, top_left, bottom_right = get_traffic_light(frame)
+            signal, top_left, bottom_right = get_traffic_light(frame)
             print('Signal ', signal)
-            show_traffic_light(frame, signal, color, top_left, bottom_right)
+            show_traffic_light(frame, signal, top_left, bottom_right)
             
             # Ganha uma quantidade de movimento se não tiver sinal ou se for verde
             if signal == 'green' or signal == '':
