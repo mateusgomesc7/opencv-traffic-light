@@ -4,6 +4,7 @@ import RPi.GPIO as GPIO
 import time
 
 # ============GLOBALS=============
+CONTROL_BLYNK = False
 cam = cv.VideoCapture(0)
 sleep = .3
 largura_img = 160
@@ -62,6 +63,64 @@ def stop():
     GPIO.output(m21, 0)
     GPIO.output(m22, 0)
 
+def save_image(valor, frame):
+    global i
+    if valor[0] == "1":
+        cv.imwrite('./images/'+str(i)+'.jpg',frame)
+        i+=1
+        print('SALVOU')
+
+def up_side(valor):
+    print('up_side1')
+    if valor[0] == "1":
+        forward()
+    elif valor[0] == "0":
+        stop()
+
+def right_side_min(valor):
+    print('right_side_min')
+    if valor[0] == "1":
+        servo1.ChangeDutyCycle(min_right)
+        time.sleep(sleep/3)
+        servo1.ChangeDutyCycle(0)
+    elif valor[0] == "0":
+        servo1.ChangeDutyCycle(frente)
+        time.sleep(sleep/3)
+        servo1.ChangeDutyCycle(0)
+
+def right_side_max(valor):
+    print('right_side_max')
+    if valor[0] == "1":
+        servo1.ChangeDutyCycle(max_right)
+        time.sleep(sleep/3)
+        servo1.ChangeDutyCycle(0)
+    elif valor[0] == "0":
+        servo1.ChangeDutyCycle(frente)
+        time.sleep(sleep/3)
+        servo1.ChangeDutyCycle(0)
+
+def left_side_min(valor):
+    print('left_side_min')
+    if valor[0] == "1":
+        servo1.ChangeDutyCycle(min_left)
+        time.sleep(sleep/3)
+        servo1.ChangeDutyCycle(0)
+    elif valor[0] == "0":
+        servo1.ChangeDutyCycle(frente)
+        time.sleep(sleep/3)
+        servo1.ChangeDutyCycle(0)
+
+def left_side_max(valor):
+    print('left_side_max')
+    if valor[0] == "1":
+        servo1.ChangeDutyCycle(max_left)
+        time.sleep(sleep/3)
+        servo1.ChangeDutyCycle(0)
+    elif valor[0] == "0":
+        servo1.ChangeDutyCycle(frente)
+        time.sleep(sleep/3)
+        servo1.ChangeDutyCycle(0)
+
 # ==================================
 
 
@@ -69,79 +128,52 @@ if __name__ == '__main__':
     i=0
     cv.namedWindow("image", cv.WINDOW_NORMAL)
     cv.resizeWindow("image", 400, 300)
+
     while(True):
-        blynk.run()
         _, frame = cam.read()
         frame = cv.resize(frame, (largura_img, altura_img))
         cv.imshow("image", frame)
 
-        @blynk.VIRTUAL_WRITE(8)
-        def save_image(valor):
-            global i
-            if valor[0] == "1":
-                cv.imwrite('./images/'+str(i)+'.jpg',frame)
-                i+=1
-                print('SALVOU')
-        
-        k=cv.waitKey(1)
-        if k==ord('q'):
-            break
-        
-        @blynk.VIRTUAL_WRITE(1)
-        def up_side(valor):
-            print('up_side1')
-            if valor[0] == "1":
-                forward()
-            elif valor[0] == "0":
-                stop()
+        if CONTROL_BLYNK:
+            blynk.run()
+    
+            k=cv.waitKey(1)
+            if k==ord('q'):
+                break
 
-        @blynk.VIRTUAL_WRITE(5)
-        def right_side_min(valor):
-            print('right_side_min')
-            if valor[0] == "1":
-                servo1.ChangeDutyCycle(min_right)
-                time.sleep(sleep/3)
-                servo1.ChangeDutyCycle(0)
-            elif valor[0] == "0":
-                servo1.ChangeDutyCycle(frente)
-                time.sleep(sleep/3)
-                servo1.ChangeDutyCycle(0)
+            @blynk.VIRTUAL_WRITE(8)
+            def blynk_save_image(valor):
+                save_image(valor, frame)
+            
+            @blynk.VIRTUAL_WRITE(1)
+            def blynk_up_side(valor):
+                up_side(valor)
+    
+            @blynk.VIRTUAL_WRITE(5)
+            def blynk_right_side_min(valor):
+                right_side_min(valor)
+    
+            @blynk.VIRTUAL_WRITE(2)
+            def blynk_right_side_max(valor):
+                right_side_max(valor)
+    
+            @blynk.VIRTUAL_WRITE(6)
+            def blynk_left_side_min(valor):
+                left_side_min(valor)
+    
+            @blynk.VIRTUAL_WRITE(7)
+            def blynk_left_side_max(valor):
+                left_side_max(valor)
 
-        @blynk.VIRTUAL_WRITE(2)
-        def right_side_max(valor):
-            print('right_side_max')
-            if valor[0] == "1":
-                servo1.ChangeDutyCycle(max_right)
-                time.sleep(sleep/3)
-                servo1.ChangeDutyCycle(0)
-            elif valor[0] == "0":
-                servo1.ChangeDutyCycle(frente)
-                time.sleep(sleep/3)
-                servo1.ChangeDutyCycle(0)
-
-        @blynk.VIRTUAL_WRITE(6)
-        def left_side_min(valor):
-            print('left_side_min')
-            if valor[0] == "1":
-                servo1.ChangeDutyCycle(min_left)
-                time.sleep(sleep/3)
-                servo1.ChangeDutyCycle(0)
-            elif valor[0] == "0":
-                servo1.ChangeDutyCycle(frente)
-                time.sleep(sleep/3)
-                servo1.ChangeDutyCycle(0)
-
-        @blynk.VIRTUAL_WRITE(7)
-        def left_side_max(valor):
-            print('left_side_max')
-            if valor[0] == "1":
-                servo1.ChangeDutyCycle(max_left)
-                time.sleep(sleep/3)
-                servo1.ChangeDutyCycle(0)
-            elif valor[0] == "0":
-                servo1.ChangeDutyCycle(frente)
-                time.sleep(sleep/3)
-                servo1.ChangeDutyCycle(0)
+        else:
+            k=cv.waitKey(1)
+            if k==ord('q'):
+                break
+            
+            # if k==ord('s'):
+            #     save_image(valor)
+            
+            
             
         
     cam.release()
