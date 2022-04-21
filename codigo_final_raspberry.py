@@ -20,7 +20,7 @@ data_filename = ""
 sleep = .3
 largura_img = 160
 altura_img = 120
-autonomous_mode = False
+autonomous_mode = True
 
 min_right = 6.5
 max_right = 5
@@ -220,7 +220,7 @@ if __name__ == "__main__":
             # Ganha uma quantidade de movimento se não tiver sinal ou se for verde
             if signal == 'green' or signal == '':
                 # Aplicação da estrada
-                for x in range(2):
+                for x in range(1):
                     output = get_road(frame)
                     choose_movement(output)
                     time.sleep(1)
