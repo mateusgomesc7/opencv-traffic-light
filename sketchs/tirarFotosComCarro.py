@@ -56,6 +56,12 @@ def forward():
     GPIO.output(m21, 1)
     GPIO.output(m22, 0)
 
+def backward():
+    GPIO.output(m11, 0)
+    GPIO.output(m12, 1)
+    GPIO.output(m21, 0)
+    GPIO.output(m22, 1)
+
 def stop():
     GPIO.output(m11, 0)
     GPIO.output(m12, 0)
@@ -92,6 +98,14 @@ if __name__ == '__main__':
             print('up_side1')
             if valor[0] == "1":
                 forward()
+            elif valor[0] == "0":
+                stop()
+
+        @blynk.VIRTUAL_WRITE(9)
+        def back_side(valor):
+            print('up_side1')
+            if valor[0] == "1":
+                backward()
             elif valor[0] == "0":
                 stop()
 
