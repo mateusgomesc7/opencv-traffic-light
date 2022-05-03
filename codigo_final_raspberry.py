@@ -28,6 +28,9 @@ frente = 7.5
 min_left = 8.5
 max_left = 10
 
+number_of_check_signal = 3
+number_of_moves = 1
+
 labels = ['LEFT MIN', 'LEFT MAX', 'FORWARD', 'RIGHT MIN', 'RIGHT MAX']
 
 # Pinos do GPIO Raspberry 3 model B
@@ -212,10 +215,14 @@ if __name__ == "__main__":
             (ret, frame) = cam.read()
             frame = cv.resize(frame, (largura_img, altura_img))
             
-            # Aplicação do semáforo
-            signal, top_left, bottom_right = get_traffic_light(frame)
-            print('Signal ', signal)
-            show_traffic_light(frame, signal, top_left, bottom_right)
+            signal = ''
+            for check_signal in range(number_of_check_signal):
+                # Aplicação do semáforo
+                signal, top_left, bottom_right = get_traffic_light(frame)
+                print('Signal ', signal if signal else 'NÃO')
+                show_traffic_light(frame, signal, top_left, bottom_right)
+                if signal == 'red' or signal == 'yellow':
+                    break
             
             # Ganha uma quantidade de movimento se não tiver sinal ou se for verde
             if signal == 'green' or signal == '':
