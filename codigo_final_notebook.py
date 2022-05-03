@@ -19,6 +19,9 @@ frente = 7.5
 min_left = 8.5
 max_left = 10
 
+number_of_check_signal = 3
+number_of_moves = 1
+
 labels = ['LEFT MIN', 'LEFT MAX', 'FORWARD', 'RIGHT MIN', 'RIGHT MAX']
 # ================================
 
@@ -56,25 +59,28 @@ def get_traffic_light(frame):
         result = dt.predict_frame(feature, clf)
 
         text = ''
-        color = (0, 0, 0)
         if (result == np.array([[1., 0., 0.]])).all():
             text = 'red'
-            color = (0, 0, 255)
         elif (result == np.array([[0., 1., 0.]])).all():
             text = 'yellow'
-            color = (0, 255, 255)
         elif (result == np.array([[0., 0., 1.]])).all():
             text = 'green'
-            color = (0, 255, 0)
-        return text, color, top_left, bottom_right
+        return text, top_left, bottom_right
     else:
-        return '', '', '', ''
+        return '', '', ''
 
 
-def show_traffic_light(frame, signal, color, top_left, bottom_right):
+def show_traffic_light(frame, signal, top_left, bottom_right):
     frame_traffic = frame.copy()
     # Verifica se algum semáforo foi encontrado
     if top_left:
+        color = (0, 0, 0)
+        if signal == 'red':
+            color = (0, 0, 255)
+        elif signal == 'yellow':
+            color = (0, 255, 255)
+        elif signal == 'green':
+            color = (0, 255, 0)
         font = cv.FONT_HERSHEY_SIMPLEX
         cv.putText(frame_traffic, signal, (10, 10), font, 0.25, color, 1, cv.LINE_AA)
         cv.rectangle(frame_traffic, top_left, bottom_right, (255,255,255),1)
@@ -130,15 +136,19 @@ if __name__ == "__main__":
             (ret, frame) = cam.read()
             frame = cv.resize(frame, (largura_img, altura_img))
             
-            # Aplicação do semáforo
-            signal, color, top_left, bottom_right = get_traffic_light(frame)
-            print('Signal ', signal if signal else 'NÃO')
-            show_traffic_light(frame, signal, color, top_left, bottom_right)
+            signal = ''
+            for check_signal in range(number_of_check_signal):
+                # Aplicação do semáforo
+                signal, top_left, bottom_right = get_traffic_light(frame)
+                print('Signal ', signal if signal else 'NÃO')
+                show_traffic_light(frame, signal, top_left, bottom_right)
+                if signal == 'red' or signal == 'yellow':
+                    break
             
             # Ganha uma quantidade de movimento se não tiver sinal ou se for verde
             if signal == 'green' or signal == '':
                 # Aplicação da estrada
-                for x in range(2):
+                for x in range(number_of_moves):
                     output = get_road(frame)
                     choose_movement(output)
                     time.sleep(1)
