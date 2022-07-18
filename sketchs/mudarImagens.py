@@ -5,16 +5,16 @@ from random import randrange
 largura_img = 30
 altura_img = 40
 
-images_1 = [img for img in glob.glob("./novo_green/*.jpg")]
+images_1 = [img for img in glob.glob("./images_novos/*.jpg")]
 images_2 = [img for img in glob.glob("./n_green/*.jpg")]
 
-images = images_1 + images_2
+images = images_1
 
 i=1
 
 for img in images:
     img = cv.imread(img)
-    cv.imwrite('./green/'+str(i)+'.jpg', img)
+    cv.imwrite(f'./images/{i}.jpg', img)
     i+=1
 
 # # Rotação de 0 a 45
