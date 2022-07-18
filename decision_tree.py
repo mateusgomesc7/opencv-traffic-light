@@ -6,6 +6,7 @@ from sklearn.model_selection import train_test_split
 from sklearn import tree
 from sklearn import metrics
 from sklearn.metrics import confusion_matrix
+import pickle
 
 
 def get_mask_and_pos(img_rgb, img_hsv):
@@ -19,16 +20,17 @@ def get_mask_and_pos(img_rgb, img_hsv):
     v = img_hsv[:, :, 2]
 
     pos = 0
-    mask_s = cv.inRange(s, lower_s, upper_s)
-    if np.sum(mask_s) > 0:
-        pos = np.argmax(np.sum(s, axis=1))
-        img_rgb[mask_s == 0] = [0, 0, 0]
-        img_hsv[mask_s == 0] = [0, 0, 0]
-    else:
-        mask_v = cv.inRange(v, lower_v, upper_v)
+    
+    mask_v = cv.inRange(v, lower_v, upper_v)
+    if np.sum(mask_v) > 0:
         pos = np.argmax(np.sum(v, axis=1))
         img_rgb[mask_v == 0] = [0, 0, 0]
         img_hsv[mask_v == 0] = [0, 0, 0]
+    else:
+        mask_s = cv.inRange(s, lower_s, upper_s)
+        pos = np.argmax(np.sum(s, axis=1))
+        img_rgb[mask_s == 0] = [0, 0, 0]
+        img_hsv[mask_s == 0] = [0, 0, 0]
 
     return img_rgb, img_hsv, pos
 
@@ -74,11 +76,11 @@ def get_features_multiple_images(images):
         # Cortando imagem
         # img = img[10:100, 10:30, :]
         # Convertendo em RGB
-        img_rgb = cv.cvtColor(img, cv.COLOR_BGR2RGB)
+        #img_rgb = cv.cvtColor(img, cv.COLOR_BGR2RGB)
         # Convertendo em HSV
         img_hsv = cv.cvtColor(img, cv.COLOR_BGR2HSV)
         # Pegando imagem com máscara e posição mais brilhosa
-        img_rgb_mask, img_hsv_mask, pos = get_mask_and_pos(img_rgb, img_hsv)
+        img_rgb_mask, img_hsv_mask, pos = get_mask_and_pos(img, img_hsv)
         # Média das cores RGB
         colors_rgb = [np.sum(img_rgb_mask[:, :, 0] / 255.0),
                       np.sum(img_rgb_mask[:, :, 1] / 255.0),
@@ -172,13 +174,22 @@ def predict_frame(frame, clf):
 
 
 if __name__ == "__main__":
-    X_test, y_test, clf = train()
+    # X_test, y_test, clf = train()
 
-    # img = cv.imread('./assets/5_tensorflow_traffic_light_images/green/0e470b16-71f2-471c-8b31-a21f5ab4d814.jpg')
+    # # save the model to disk
+    filename = 'finalized_model.sav'
+    # pickle.dump(clf, open(filename, 'wb'))
+    
+    # load the model from disk
+    loaded_model = pickle.load(open(filename, 'rb'))
+    # result = loaded_model.score(X_test, Y_test)
+
+    img = cv.imread('./assets/5_tensorflow_traffic_light_images/green/0e470b16-71f2-471c-8b31-a21f5ab4d814.jpg')
     # red_lights = [img for img in glob.glob("./5_tensorflow_traffic_light_images/yellow/*.jpg")]
-    # feature = get_features(img)
-    # predict_frame(feature, clf)
-    predict(X_test, y_test, clf)
+    feature = get_features(img)
+    result = predict_frame(feature, loaded_model)
+    print(result)
+    # predict(X_test, y_test, loaded_model)
 
     cv.waitKey(0)
     cv.destroyAllWindows()
