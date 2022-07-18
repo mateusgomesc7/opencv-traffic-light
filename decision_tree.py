@@ -177,7 +177,7 @@ if __name__ == "__main__":
     # X_test, y_test, clf = train()
 
     # # save the model to disk
-    filename = 'finalized_model.sav'
+    filename = './models/decision_tree_model.sav'
     # pickle.dump(clf, open(filename, 'wb'))
     
     # load the model from disk

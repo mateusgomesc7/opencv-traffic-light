@@ -10,6 +10,7 @@ import BlynkLib
 import template_match as tm
 import decision_tree as dt
 import haarcascade as hc
+import pickle
 
 
 # ============GLOBALS=============
@@ -43,7 +44,7 @@ servo = 12
 
 
 # ============SETUP=============
-_, _, clf = dt.train()
+clf = pickle.load(open('./models/decision_tree_model.sav', 'rb'))
 
 interpreter = tflite.Interpreter('models/mlp_model.tflite')
 interpreter.allocate_tensors()
@@ -118,7 +119,6 @@ def moveCar(direction):
 
 def get_traffic_light(frame):
     frame_crop, top_left, bottom_right = hc.find_traffic_light(frame)
-    # frame_crop, top_left, bottom_right = tm.find_traffic_light(frame)
     
     # Verifica se o semáforo foi identificado
     if type(frame_crop) is np.ndarray:
